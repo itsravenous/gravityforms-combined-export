@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin name: Gravity Forms Bulk Export
+ * Plugin name: Gravity Forms Combined Export
  */
 
 $plugdir = dirname(__FILE__) . '/';
