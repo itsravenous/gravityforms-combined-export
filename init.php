@@ -45,7 +45,8 @@ class rv_gravity_combined_export {
 		$form_ids = $_POST['gf-combined-forms'];
 		
 		
-		// $form_id = $form_ids[0];
+		// Get desired fields from config
+		$fields = GFCEConfig::$fields;
 
 		$exporter = new rv_gravity_export(array(
 			'db' => array(
@@ -59,16 +60,10 @@ class rv_gravity_combined_export {
 		// Create timestamp for export files
 		$timestamp = date('Y-m-d-H-i-s');
 
-		// Open zip archive
-		$zipfile = $plugdir.'export/gravity-combined-export-'.$timestamp.'.zip';
-		$zip = new ZipArchive();
-		if ($zip->open($zipfile, ZipArchive::CREATE) !== TRUE) {
-			wp_die("cannot open zipfile");
-		}
+		$form_results = array();
 
-		// Loop over forms and export to zip
+		// Loop over forms and create array of entries with just the fields defined in config
 		foreach ($form_ids as $form_id) {
-
 			// Get all forms
 			$forms = rv_gravity::get_forms();
 
@@ -80,24 +75,60 @@ class rv_gravity_combined_export {
 			$filename = $plugdir.'export/export-'.$form->title.'-'.$timestamp.'.csv';
 
 			// Export form entries to CSV file
-			$exporter->export_entries(array(
+			$results = $exporter->get_entries(array(
 				'form_id' => $form_id,
 				'date_from' => $date_start,
 				'date_to' => $date_end,
-				'out' => $filename,
 			));
-			$zip->addFile($filename, basename($filename));
+
+			// Strip out all but fields defined in config
+			$results = array_map(function ($result) use ($fields) {
+				$result = array_intersect_key($result, array_flip($fields));
+				return $result;
+			}, $results);
+
+			$form_results = array_merge($form_results, $results);
+			
 		}
 
-		$zip->close();
+		// Create CSV from array
+		$csv_header = $fields;
+		$form_results = array_map(function ($form_result) use ($fields) {
+			// Make sure fields are in correct order
+			uksort($form_result, function ($key1, $key2) use ($fields) {
+				$idx1 = array_search($key1, $fields);
+				$idx2 = array_search($key2, $fields);
+				if ($idx1 > $idx2) {
+					return 1;
+				} elseif ($idx1 < $idx2) {
+					return -1;
+				} else {
+					return 0;
+				}
+			});
 
-		header('Content-type: application/zip');
-		header('Content-Disposition: attachment; filename="'.basename($zipfile).'"');
-		die(file_get_contents($zipfile));
+			return $form_result;
+		}, $form_results);
 
-		// wp_redirect( $_SERVER['HTTP_REFERER'] );
-	 //    exit();
+		// Create CSV from array
+		$csv_rows = array();
+		// Header row
+		$csv_rows[] = implode(';', $fields);
+		// Data rows
+		foreach ($form_results as $form_result) {
+			$csv_rows[] = implode(';', array_values($form_result));
+		}
+
+		// Write CSV to file
+		$filename = $plugdir.'export/'.$timestamp.'.csv';
+		file_put_contents($filename, implode(PHP_EOL, $csv_rows));
+
+		// Send file to browser
+		header('Content-type: text/csv');
+		header('Content-Disposition: attachment; filename="'.basename($filename).'"');
+		die(file_get_contents($filename));
 	}
+
 }
 
 add_action('admin_menu', array('rv_gravity_combined_export', 'create_menu'));

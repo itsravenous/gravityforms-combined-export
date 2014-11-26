@@ -1,11 +1,11 @@
 <style type="text/css">
-	.rv-gravity-bulk-export-form label {
+	.rv-gravity-combined-export-form label {
 		display: block;
 		margin-bottom: 1rem;
 
 		font-weight: bold;
 	}
-	.rv-gravity-bulk-export-form label .label-help {
+	.rv-gravity-combined-export-form label .label-help {
 		display: block;
 
 		color: #606060;
@@ -24,15 +24,15 @@
 <?php endforeach;?>
 </ul>
 
-<form class="rv-gravity-bulk-export-form" action="?action=rv_gravity_bulk_export" method="POST">
+<form class="rv-gravity-combined-export-form" action="?action=rv_gravity_combined_export" method="POST">
 
 	<ul>
 		<li>
-			<label for="gf-bulk-forms">
+			<label for="gf-combined-forms">
 				Forms to export
 				<span class="label-help">Hold <code>Ctrl</code> or <code>Cmd</code> to select multiple forms. To select all, select the first form, then hit <code>Shift</code> + <code>End</code></span>
 			</label>
-			<select id="gf-bulk-forms" name="gf-bulk-forms[]" multiple>
+			<select id="gf-combined-forms" name="gf-combined-forms[]" multiple>
 				<?php foreach ($forms as $form):?>
 				<option value="<?php echo $form->id;?>"><?php echo $form->title;?></option>
 				<?php endforeach;?>
@@ -40,13 +40,13 @@
 		</li>
 
 		<li>
-			<label for="gf-bulk-date-start">Start date <span class="label-help">in <code>dd/mm/yyyy</code> format</span></label>
-			<input id="gf-bulk-date-start" name="gf-bulk-date-start" type="date">
+			<label for="gf-combined-date-start">Start date <span class="label-help">in <code>dd/mm/yyyy</code> format</span></label>
+			<input id="gf-combined-date-start" name="gf-combined-date-start" type="date">
 		</li>
 
 		<li>
-			<label for="gf-bulk-date-end">End date <span class="label-help">in <code>dd/mm/yyyy</code> format</span></label>
-			<input id="gf-bulk-date-end" name="gf-bulk-date-end" type="date">
+			<label for="gf-combined-date-end">End date <span class="label-help">in <code>dd/mm/yyyy</code> format</span></label>
+			<input id="gf-combined-date-end" name="gf-combined-date-end" type="date">
 		</li>
 	</ul>
 

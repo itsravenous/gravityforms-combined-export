@@ -13,6 +13,61 @@ Class rv_gravity_export {
 		mysql_connect($options['db']['host'], $options['db']['user'], $options['db']['password']);
 		mysql_select_db($options['db']['name']);
 	}
+
+	/**
+	 * @return {Array} entries with values keyed by field label
+	 */
+	public function get_entries($options) {
+
+		$form_id = $options['form_id'];
+		$date_from = !empty($options['date_from']) ? $options['date_from'] : FALSE;
+		$date_to = !empty($options['date_to']) ? $options['date_to'] : FALSE;
+		$form = rv_gravity::get_form($form_id);
+		$fields = rv_gravity::get_form_fields($form_id);
+		$entries = rv_gravity::get_form_entries($form_id, $date_from, $date_to);
+
+		$results = array();
+		foreach ($entries as $entry) {
+			$result = array();
+
+			foreach ($fields as $field) {
+				$field = (array) $field; // When form meta stored as JSON, fields will be objects not arrays
+				// Skip separator field
+				if($field['type'] == 'section' || $field['type'] == 'page') continue;
+
+				$ids = array();
+				if ($field['inputs']) {
+					foreach ($field['inputs'] as &$input) {
+						$input = (array) $input;
+						$ids[$input['label']] = $input['id'];
+						$input['label'] = $field['label'] . ' (' . $input['label'] . ')';
+					}
+				} else {
+					$ids = array(
+						$field['label'] => $field['id'],
+					);
+				}
+
+				// Get value for field from entry
+				foreach ($ids as $label => $id) {
+					$value = array_filter($entry->values, function ($val) use($id) {
+						return (string) $val->field_id == (string) $id;
+					});
+					if (empty($value)) {
+						$value = '';
+					} else {
+						$value = end($value);
+						$value = $value->value;
+					}
+
+					$result[$label] = $value;
+				}
+			}
+
+			$results[] = $result;
+		}
+		return $results;
+	}
 	
 	public function export_entries($options) {
 
