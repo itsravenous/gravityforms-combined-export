@@ -14,10 +14,15 @@
 	}
 </style>
 
-<h2> Gravity forms bulk export </h2>
+<h2> Gravity forms combined export </h2>
 <p>
-	This tool allows you to export entries from multiple Gravity Forms at once. The CSV files for each form will be bundled in a zip file for you to download.
+	This tool allows you to export common fields from multiple forms. This instance is set up to export:
 </p>
+<ul>
+<?php foreach (GFCEConfig::$fields as $field):?>
+<li> <strong><?php echo $field;?></strong> </li>
+<?php endforeach;?>
+</ul>
 
 <form class="rv-gravity-bulk-export-form" action="?action=rv_gravity_bulk_export" method="POST">
 

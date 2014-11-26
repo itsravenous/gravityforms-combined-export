@@ -5,12 +5,13 @@
 
 $plugdir = dirname(__FILE__) . '/';
 
+require_once($plugdir.'config.php');
 require_once($plugdir.'inc/export-class.php');
 
-class rv_gravity_bulk_export {
+class rv_gravity_combined_export {
 
 	public static function create_menu() {
-		add_menu_page('Gravity Bulk Export', 'Gravity Bulk Export', 'gform_full_access', 'gravity-bulk-export', array('rv_gravity_bulk_export', 'render_export_page'));
+		add_menu_page('Gravity Combined Export', 'Gravity Combined Export', 'gform_full_access', 'gravity-combined-export', array('rv_gravity_combined_export', 'render_export_page'));
 	}
 
 	public static function render_export_page() {
@@ -25,8 +26,8 @@ class rv_gravity_bulk_export {
 		global $plugdir;
 
 		// Get dates
-		$date_start = !empty($_POST['gf-bulk-date-start']) ? $_POST['gf-bulk-date-start'] : FALSE;
-		$date_end = !empty($_POST['gf-bulk-date-end']) ? $_POST['gf-bulk-date-end'] : FALSE;
+		$date_start = !empty($_POST['gf-combined-date-start']) ? $_POST['gf-combined-date-start'] : FALSE;
+		$date_end = !empty($_POST['gf-combined-date-end']) ? $_POST['gf-combined-date-end'] : FALSE;
 
 		// Validate and format dates
 		$date_regex = '/^(0[1-9]|[12][0-9]|3[01])[\/](0[1-9]|1[012])[\/](19|20)\d\d$/';
@@ -41,7 +42,7 @@ class rv_gravity_bulk_export {
 			$date_end = date('Y-m-d', strtotime(str_replace('/', '-', $date_end)));
 		}
 
-		$form_ids = $_POST['gf-bulk-forms'];
+		$form_ids = $_POST['gf-combined-forms'];
 		
 		
 		// $form_id = $form_ids[0];
@@ -59,7 +60,7 @@ class rv_gravity_bulk_export {
 		$timestamp = date('Y-m-d-H-i-s');
 
 		// Open zip archive
-		$zipfile = $plugdir.'export/gravity-bulk-export-'.$timestamp.'.zip';
+		$zipfile = $plugdir.'export/gravity-combined-export-'.$timestamp.'.zip';
 		$zip = new ZipArchive();
 		if ($zip->open($zipfile, ZipArchive::CREATE) !== TRUE) {
 			wp_die("cannot open zipfile");
@@ -99,7 +100,7 @@ class rv_gravity_bulk_export {
 	}
 }
 
-add_action('admin_menu', array('rv_gravity_bulk_export', 'create_menu'));
-add_action('admin_action_rv_gravity_bulk_export', array('rv_gravity_bulk_export', 'process_form'));
+add_action('admin_menu', array('rv_gravity_combined_export', 'create_menu'));
+add_action('admin_action_rv_gravity_combined_export', array('rv_gravity_combined_export', 'process_form'));
 
 ?>
