@@ -84,6 +84,10 @@ class rv_gravity_combined_export {
 			// Strip out all but fields defined in config
 			$results = array_map(function ($result) use ($fields) {
 				$result = array_intersect_key($result, array_flip($fields));
+				// Pad with empty valyues for missing cols
+				foreach ($fields as $key) {
+					if (!isset($result[$key])) $result[$key] = '';
+				}
 				return $result;
 			}, $results);
 
@@ -113,10 +117,19 @@ class rv_gravity_combined_export {
 		// Create CSV from array
 		$csv_rows = array();
 		// Header row
-		$csv_rows[] = implode(';', $fields);
+		$csv_rows[] = implode(',', $fields);
 		// Data rows
 		foreach ($form_results as $form_result) {
-			$csv_rows[] = implode(';', array_values($form_result));
+			$csv_rows[] = implode(',', array_map(function ($val) {
+				return '"'.str_replace(array(
+					'"',
+					',',
+				),
+				array(
+					'""',
+					'',
+				), $val).'"';
+			}, array_values($form_result)));
 		}
 
 		// Write CSV to file
